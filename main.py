@@ -1,21 +1,36 @@
+from ayarlar import ayarlar
 import discord
-from discord.ext import commands
+# import * - kütüphanedeki tüm dosyaları içe aktarmanın hızlı bir yoludur
+from bot_mantik import *
 
-intents = discord.Intents.default()
-intents.message_content = True
+# ayricaliklar (intents) değişkeni botun ayrıcalıklarını depolayacak
+ayricaliklar = discord.Intents.default()
+# Mesajları okuma ayrıcalığını etkinleştirelim
+ayricaliklar.message_content = True
+# istemci (client) değişkeniyle bir bot oluşturalım ve ayrıcalıkları ona aktaralım
+istemci = discord.Client(intents=ayricaliklar)
 
-bot = commands.Bot(command_prefix='$', intents=intents)
 
-@bot.event
+# Bot hazır olduğunda adını yazdıracak!
+@istemci.event
 async def on_ready():
-    print(f'{bot.user} olarak giriş yaptık')
+    print(f'{istemci.user} olarak giriş yaptık')
 
-@bot.command()
-async def hello(ctx):
-    await ctx.send(f'Merhaba {bot.user}! Ben bir botum!')
 
-@bot.command()
-async def heh(ctx, count_heh = 5):
-    await ctx.send("he" * count_heh)
+# Bot bir mesaj aldığında, aynı kanalda mesaj gönderecek!
+@istemci.event
+async def on_message(message):
+    if message.author == istemci.user:
+        return
+    if message.content.startswith('$hello'):
+        await message.channel.send('Selam! Ben bir botum!')
+    elif message.content.startswith('$smile'):
+        await message.channel.send(emoji_olusturucu())
+    elif message.content.startswith('$coin'):
+        await message.channel.send(yazi_tura())
+    elif message.content.startswith('$pass'):
+        await message.channel.send(sifre_olusturucu(10))
+    else:
+        await message.channel.send("Bu komutu anlayamadım :(")
 
-bot.run("GİZLİ TOKEN BURAYA")
+istemci.run(ayarlar["TOKEN"])
